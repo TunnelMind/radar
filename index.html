@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TunnelMind Radar — Surveillance Ecosystem Map</title>
+<meta name="description" content="The complete map of 704 surveillance entities tracking your browsing across 9,786 domains. See who profits from your data.">
+<meta property="og:title" content="TunnelMind Radar — Surveillance Ecosystem Map">
+<meta property="og:description" content="704 entities. 9,786 domains. All watching you.">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #050508; --bg-raised: #0d0d14;
+  --border: rgba(255,255,255,0.07);
+  --text: #e0e0ec; --dim: #9090a8; --dimmer: #606070; --dimmest: #333340;
+  --teal: #00d4a8; --amber: #cc8844; --red: #ff3d3d;
+  --font: 'Geist Mono','Fira Code','Cascadia Code',ui-monospace,'Courier New',monospace;
+  --ui: -apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+  --c-surveillance: #ff3d3d;
+  --c-analytics:    #ff9500;
+  --c-monetization: #cc44ff;
+  --c-social:       #0088ff;
+  --c-infrastructure: #4a7a8a;
+}
+html, body {
+  background: var(--bg); color: var(--text);
+  font-family: var(--font);
+  width: 100vw; height: 100vh; overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── HEADER BAR ── */
+#topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; height: 52px;
+  background: rgba(5,5,8,0.92);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+}
+.tb-logo { font-size: 9px; letter-spacing: .28em; color: var(--dimmer); }
+.tb-tag { font-size: 8px; color: var(--dim); letter-spacing: .18em; }
+.tb-right { display: flex; align-items: center; gap: 12px; }
+.btn-install {
+  background: var(--teal); color: #050508;
+  font-family: var(--font); font-size: 9px; font-weight: 700;
+  letter-spacing: .18em; padding: 8px 16px; border: none;
+  border-radius: 3px; cursor: pointer;
+  text-decoration: none; display: inline-block;
+  transition: opacity .15s;
+}
+.btn-install:hover { opacity: .85; }
+.tb-link {
+  font-size: 9px; color: var(--dimmer); letter-spacing: .1em;
+  text-decoration: none; transition: color .15s;
+}
+.tb-link:hover { color: var(--dim); }
+
+/* ── GRAPH ── */
+#graph {
+  width: 100vw; height: 100vh; display: block;
+  margin-top: 0;
+}
+#graph text { pointer-events: none; user-select: none; }
+
+/* ── LOADING ── */
+#loading {
+  position: fixed; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 16px; z-index: 300;
+  background: var(--bg);
+}
+.load-title { font-size: 10px; letter-spacing: .22em; color: var(--dimmer); }
+.load-bar {
+  width: 200px; height: 1px; background: var(--dimmest); position: relative; overflow: hidden;
+}
+.load-fill {
+  position: absolute; left: -100%; top: 0; height: 100%;
+  width: 100%; background: var(--teal);
+  animation: sweep 1.4s ease-in-out infinite;
+}
+@keyframes sweep {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* ── TOOLTIP ── */
+#tooltip {
+  position: fixed; pointer-events: none; z-index: 300;
+  background: rgba(10,10,16,0.97); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px; padding: 12px 16px; font-size: 10px;
+  max-width: 240px; display: none;
+}
+.tt-name { font-size: 12px; color: var(--text); margin-bottom: 8px; line-height: 1.3; }
+.tt-row { display: flex; justify-content: space-between; gap: 20px;
+          color: var(--dimmer); font-size: 9px; letter-spacing: .05em; margin-top: 3px; }
+.tt-val { color: var(--dim); }
+.tt-cat { margin-top: 8px; font-size: 8px; letter-spacing: .16em; }
+.tt-domains { margin-top: 6px; color: var(--dimmer); font-size: 8px; line-height: 1.7; }
+.tt-hint { margin-top: 8px; font-size: 7px; color: var(--dimmest); letter-spacing: .08em; font-family: var(--ui); }
+
+/* ── STATS ── */
+#stats-panel {
+  position: fixed; bottom: 24px; left: 24px; z-index: 100;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.sp-row { display: flex; gap: 10px; align-items: baseline; }
+.sp-n { font-size: 16px; color: var(--text); letter-spacing: -.01em; min-width: 48px; }
+.sp-l { font-size: 8px; color: var(--dimmer); letter-spacing: .1em; }
+
+/* ── LEGEND ── */
+#legend {
+  position: fixed; bottom: 24px; right: 24px; z-index: 100;
+  font-size: 8px; letter-spacing: .1em;
+  display: flex; flex-direction: column; gap: 6px; align-items: flex-end;
+}
+.leg-row { display: flex; align-items: center; gap: 8px; color: var(--dimmer); }
+.leg-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── INSTALL PROMPT (bottom-center) ── */
+#install-bar {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  z-index: 150; padding: 14px 28px;
+  background: rgba(5,5,8,0.92); border-top: 1px solid var(--border);
+  border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+  border-radius: 6px 6px 0 0;
+  font-size: 9px; color: var(--dimmer); letter-spacing: .1em;
+  text-align: center; line-height: 1.8;
+  backdrop-filter: blur(12px);
+  display: none;
+}
+#install-bar strong { color: var(--dim); }
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="load-title">MAPPING SURVEILLANCE ECOSYSTEM</div>
+  <div class="load-bar"><div class="load-fill"></div></div>
+</div>
+
+<div id="topbar">
+  <div>
+    <div class="tb-logo">TUNNELMIND</div>
+    <div class="tb-tag">RADAR — SURVEILLANCE ECOSYSTEM MAP</div>
+  </div>
+  <div class="tb-right">
+    <a href="https://tunnelmind.ai/explore" class="tb-link" target="_blank">EXPLORER</a>
+    <a href="https://tunnelmind.ai" class="tb-link" target="_blank">HOME</a>
+    <a href="https://tunnelmind.ai" class="btn-install" target="_blank">INSTALL EXTENSION →</a>
+  </div>
+</div>
+
+<svg id="graph"></svg>
+
+<div id="tooltip">
+  <div class="tt-name" id="tt-name"></div>
+  <div class="tt-row"><span>DOMAINS</span><span class="tt-val" id="tt-doms"></span></div>
+  <div class="tt-row"><span>DATA VALUE</span><span class="tt-val" id="tt-val"></span></div>
+  <div class="tt-row"><span>JURISDICTION</span><span class="tt-val" id="tt-jur"></span></div>
+  <div class="tt-cat" id="tt-cat"></div>
+  <div class="tt-domains" id="tt-domain-list"></div>
+  <div class="tt-hint">Click to explore in detail →</div>
+</div>
+
+<div id="stats-panel">
+  <div class="sp-row"><span class="sp-n" id="sp-entities">704</span><span class="sp-l">SURVEILLANCE ENTITIES MAPPED</span></div>
+  <div class="sp-row"><span class="sp-n" id="sp-domains">9,786</span><span class="sp-l">TRACKER DOMAINS IDENTIFIED</span></div>
+  <div class="sp-row"><span class="sp-n" id="sp-val">$62B</span><span class="sp-l">EST. ANNUAL SURVEILLANCE INDUSTRY VALUE</span></div>
+</div>
+
+<div id="legend">
+  <div class="leg-row"><span>FINGERPRINTING / DATA BROKER</span><div class="leg-dot" style="background:var(--c-surveillance)"></div></div>
+  <div class="leg-row"><span>AD NETWORKS</span><div class="leg-dot" style="background:var(--c-monetization)"></div></div>
+  <div class="leg-row"><span>ANALYTICS</span><div class="leg-dot" style="background:var(--c-analytics)"></div></div>
+  <div class="leg-row"><span>SOCIAL</span><div class="leg-dot" style="background:var(--c-social)"></div></div>
+  <div class="leg-row"><span>INFRASTRUCTURE</span><div class="leg-dot" style="background:var(--c-infrastructure)"></div></div>
+</div>
+
+<div id="install-bar" id="install-prompt">
+  <strong>See which of these entities tracked YOU today.</strong><br>
+  Install the TunnelMind extension — your personal surveillance map populates in real time.
+  &nbsp;&nbsp;<a href="https://tunnelmind.ai" class="btn-install" target="_blank">INSTALL FREE →</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script>
+var CAT_COLOR = {
+  surveillance:   '#ff3d3d',
+  analytics:      '#ff9500',
+  monetization:   '#cc44ff',
+  social:         '#0088ff',
+  infrastructure: '#4a7a8a',
+};
+
+var CAT_LABEL = {
+  surveillance:   'FINGERPRINTING / DATA BROKER',
+  analytics:      'ANALYTICS',
+  monetization:   'AD NETWORK',
+  social:         'SOCIAL',
+  infrastructure: 'INFRASTRUCTURE',
+};
+
+fetch('radar-graph.json')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('install-bar').style.display = 'block';
+    render(data.nodes);
+  })
+  .catch(function(err) {
+    document.getElementById('loading').innerHTML =
+      '<div style="font-size:9px;color:#606070;letter-spacing:.1em">FAILED TO LOAD DATA</div>';
+    console.error(err);
+  });
+
+function render(nodes) {
+  var w = window.innerWidth;
+  var h = window.innerHeight;
+
+  var svg = d3.select('#graph')
+    .attr('width', w).attr('height', h);
+
+  var zoomG = svg.append('g');
+
+  svg.call(d3.zoom()
+    .scaleExtent([0.15, 5])
+    .on('zoom', function(event) {
+      zoomG.attr('transform', event.transform);
+    }));
+
+  // Assign initial positions by category angle
+  var catAngles = {
+    surveillance: 0,
+    monetization: Math.PI * 0.6,
+    analytics:    Math.PI * 1.1,
+    social:       Math.PI * 1.6,
+    infrastructure: Math.PI * 1.85,
+  };
+  var arenaR = Math.min(w, h) * 0.3;
+  nodes.forEach(function(d) {
+    var a = (catAngles[d.category] || 0) + (Math.random() - 0.5) * 0.8;
+    var r = arenaR * (0.4 + Math.random() * 0.6);
+    d.x = w / 2 + r * Math.cos(a);
+    d.y = h / 2 + r * Math.sin(a);
+  });
+
+  var sim = d3.forceSimulation(nodes)
+    .force('charge', d3.forceManyBody().strength(function(d) {
+      return -nodeR(d) * 12;
+    }))
+    .force('center', d3.forceCenter(w / 2, h / 2).strength(0.04))
+    .force('collide', d3.forceCollide().radius(function(d) {
+      return nodeR(d) + 4;
+    }).strength(0.9))
+    .force('radial', d3.forceRadial(function(d) {
+      return catR(d.category, arenaR);
+    }, w / 2, h / 2).strength(0.18))
+    .alphaDecay(0.015)
+    .velocityDecay(0.42);
+
+  var nodeG = zoomG.selectAll('.node')
+    .data(nodes, function(d) { return d.id; })
+    .enter().append('g')
+    .attr('class', 'node')
+    .style('cursor', 'pointer')
+    .call(d3.drag()
+      .on('start', function(e, d) {
+        if (!e.active) sim.alphaTarget(0.3).restart();
+        d.fx = d.x; d.fy = d.y;
+      })
+      .on('drag', function(e, d) { d.fx = e.x; d.fy = e.y; })
+      .on('end', function(e, d) {
+        if (!e.active) sim.alphaTarget(0);
+        d.fx = null; d.fy = null;
+      }))
+    .on('mouseover', showTT)
+    .on('mousemove', moveTT)
+    .on('mouseout', hideTT)
+    .on('click', function(e, d) {
+      window.open('https://tunnelmind.ai/explore?q=' + encodeURIComponent(d.label), '_blank');
+    });
+
+  nodeG.append('circle')
+    .attr('r', nodeR)
+    .attr('fill', function(d) { return CAT_COLOR[d.category] || '#3a3a52'; })
+    .attr('fill-opacity', 0.65)
+    .attr('stroke', function(d) { return CAT_COLOR[d.category] || '#3a3a52'; })
+    .attr('stroke-opacity', 0.35)
+    .attr('stroke-width', 1);
+
+  nodeG.filter(function(d) { return nodeR(d) >= 12; })
+    .append('text')
+    .attr('text-anchor', 'middle')
+    .attr('dy', '0.35em')
+    .attr('fill', '#ffffff')
+    .attr('fill-opacity', 0.65)
+    .attr('font-family', "'Geist Mono','Fira Code',ui-monospace,monospace")
+    .attr('font-size', function(d) {
+      return Math.max(6, Math.min(10, nodeR(d) * 0.5)) + 'px';
+    })
+    .text(function(d) {
+      var maxLen = Math.floor(nodeR(d) / 3.8);
+      return d.label.length > maxLen ? d.label.slice(0, maxLen) + '…' : d.label;
+    });
+
+  sim.on('tick', function() {
+    zoomG.selectAll('.node')
+      .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
+  });
+
+  svg.style('opacity', 0).transition().duration(800).style('opacity', 1);
+
+  window.addEventListener('resize', function() {
+    var nw = window.innerWidth, nh = window.innerHeight;
+    svg.attr('width', nw).attr('height', nh);
+    sim.force('center', d3.forceCenter(nw / 2, nh / 2).strength(0.04));
+    sim.alpha(0.2).restart();
+  });
+}
+
+function nodeR(d) {
+  return Math.max(5, Math.min(36, Math.sqrt(d.domainCount) * 5.5 + 4));
+}
+
+function catR(cat, arenaR) {
+  var m = {
+    surveillance:   arenaR * 0.4,
+    social:         arenaR * 0.55,
+    monetization:   arenaR * 0.75,
+    analytics:      arenaR * 0.88,
+    infrastructure: arenaR * 1.0,
+  };
+  return m[cat] || arenaR * 0.7;
+}
+
+var tt = document.getElementById('tooltip');
+function showTT(e, d) {
+  document.getElementById('tt-name').textContent = d.label;
+  document.getElementById('tt-doms').textContent = d.domainCount;
+  document.getElementById('tt-val').textContent = '$' + Math.round(d.totalCpm / 1000 * 52) + '/yr per user';
+  document.getElementById('tt-jur').textContent = d.jurisdiction || 'unknown';
+  var catEl = document.getElementById('tt-cat');
+  catEl.textContent = CAT_LABEL[d.category] || d.category;
+  catEl.style.color = CAT_COLOR[d.category] || '#666';
+  document.getElementById('tt-domain-list').textContent = (d.topDomains || []).slice(0, 5).join(' · ');
+  tt.style.display = 'block';
+  posTT(e);
+}
+function moveTT(e) { posTT(e); }
+function hideTT() { tt.style.display = 'none'; }
+function posTT(e) {
+  var x = e.clientX + 16, y = e.clientY - 12;
+  if (x + 250 > window.innerWidth) x = e.clientX - 256;
+  if (y + 180 > window.innerHeight) y = e.clientY - 180;
+  tt.style.left = x + 'px'; tt.style.top = y + 'px';
+}
+</script>
+</body>
+</html>
