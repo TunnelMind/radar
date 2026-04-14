@@ -116,6 +116,46 @@ html, body {
 .leg-row { display: flex; align-items: center; gap: 8px; color: var(--dimmer); }
 .leg-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
+/* ── INFO PANEL ── */
+#info-panel {
+  position: fixed; top: 68px; left: 20px; z-index: 250;
+  width: 320px; display: none;
+  background: rgba(5,5,8,0.97); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px; padding: 18px 20px;
+  font-size: 9px; color: var(--dim); letter-spacing: .08em; line-height: 1.8;
+  backdrop-filter: blur(16px);
+}
+#info-panel-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 14px;
+}
+#info-panel-title {
+  font-size: 8px; letter-spacing: .22em; color: var(--dimmer);
+}
+#info-panel-close {
+  background: none; border: none; color: var(--dimmer); cursor: pointer;
+  font-family: var(--font); font-size: 11px; padding: 0; line-height: 1;
+  transition: color .15s;
+}
+#info-panel-close:hover { color: var(--dim); }
+#info-panel p { margin-bottom: 14px; }
+#info-panel .ip-legend { margin-bottom: 14px; display: flex; flex-direction: column; gap: 5px; }
+#info-panel .ip-leg-row { display: flex; align-items: center; gap: 8px; }
+#info-panel .ip-leg-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+#info-panel .ip-links { font-size: 8px; color: var(--dimmer); letter-spacing: .08em; }
+#info-panel .ip-links a { color: var(--teal); text-decoration: none; }
+#info-panel .ip-links a:hover { text-decoration: underline; }
+
+/* ── HELP BUTTON ── */
+#help-btn {
+  position: fixed; bottom: 20px; right: 130px; z-index: 200;
+  font-family: var(--font); font-size: 9px; color: var(--dimmest);
+  letter-spacing: .1em; cursor: pointer; background: none; border: none;
+  padding: 6px 8px; transition: color .15s; line-height: 1;
+  user-select: none;
+}
+#help-btn:hover { color: var(--dim); }
+
 /* ── INSTALL PROMPT (bottom-center) ── */
 #install-bar {
   position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
@@ -175,6 +215,27 @@ html, body {
   <div class="leg-row"><span>SOCIAL</span><div class="leg-dot" style="background:var(--c-social)"></div></div>
   <div class="leg-row"><span>INFRASTRUCTURE</span><div class="leg-dot" style="background:var(--c-infrastructure)"></div></div>
 </div>
+
+<div id="info-panel">
+  <div id="info-panel-header">
+    <span id="info-panel-title">ABOUT THIS MAP</span>
+    <button id="info-panel-close" onclick="toggleInfo(false)">×</button>
+  </div>
+  <p>Each node is a surveillance entity — an advertising company, data broker, analytics provider, or CDN resolved from domain ownership data. Node size reflects domain count; color reflects primary industry. Entities in this graph were seen contacting real devices — the count shown is how many domains that entity operates. To see which of these contacted <em>your</em> device, run a Surveillance Receipt scan at tunnelmind.ai/receipt. For programmatic access to the full dataset, use the Tracker Data API at data.tunnelmind.ai.</p>
+  <div class="ip-legend">
+    <div class="ip-leg-row"><div class="ip-leg-dot" style="background:var(--c-surveillance)"></div><span>Fingerprinting / Data Broker</span></div>
+    <div class="ip-leg-row"><div class="ip-leg-dot" style="background:var(--c-monetization)"></div><span>Ad Networks</span></div>
+    <div class="ip-leg-row"><div class="ip-leg-dot" style="background:var(--c-analytics)"></div><span>Analytics</span></div>
+    <div class="ip-leg-row"><div class="ip-leg-dot" style="background:var(--c-social)"></div><span>Social</span></div>
+    <div class="ip-leg-row"><div class="ip-leg-dot" style="background:var(--c-infrastructure)"></div><span>Infrastructure / CDN</span></div>
+  </div>
+  <div class="ip-links">
+    Cross-reference: <a href="https://tunnelmind.ai/receipt" target="_blank">tunnelmind.ai/receipt</a><br>
+    Data API: <a href="https://data.tunnelmind.ai" target="_blank">data.tunnelmind.ai</a>
+  </div>
+</div>
+
+<button id="help-btn" onclick="toggleInfo()" title="About this map [?]">[?]</button>
 
 <div id="install-bar" id="install-prompt">
   <strong>See which of these entities tracked YOU today.</strong><br>
@@ -332,6 +393,18 @@ function catR(cat, arenaR) {
   };
   return m[cat] || arenaR * 0.7;
 }
+
+// ── INFO PANEL TOGGLE ──
+var _infoVisible = false;
+function toggleInfo(forceState) {
+  _infoVisible = forceState !== undefined ? forceState : !_infoVisible;
+  document.getElementById('info-panel').style.display = _infoVisible ? 'block' : 'none';
+}
+document.addEventListener('keydown', function(e) {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === '?') { toggleInfo(); }
+  if (e.key === 'Escape') { toggleInfo(false); }
+});
 
 var tt = document.getElementById('tooltip');
 function showTT(e, d) {
