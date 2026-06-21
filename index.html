@@ -13,18 +13,17 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  /* Aligned with tunnelmind.ai design system */
-  --bg: #0f172a; --bg-raised: #1e293b;
-  --border: #334155;
+  --bg: #0b0a12; --bg-raised: #13121f;
+  --border: #2a2840;
   --text: #e2e8f0; --dim: #94a3b8; --dimmer: #64748b; --dimmest: #475569;
-  --teal: #4ade80; --amber: #fbbf24; --red: #f87171;
+  --teal: #4ade80; --amber: #fbbf24; --red: #ff3d3d;
   --font: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Courier New', monospace;
   --ui: -apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
-  --c-surveillance: #f87171;
-  --c-analytics:    #fbbf24;
-  --c-monetization: #a78bfa;
-  --c-social:       #60a5fa;
-  --c-infrastructure: #64748b;
+  --c-surveillance: #ff3d3d;
+  --c-analytics:    #ff9500;
+  --c-monetization: #cc44ff;
+  --c-social:       #0088ff;
+  --c-infrastructure: #4a7a8a;
 }
 html, body {
   background: var(--bg); color: var(--text);
@@ -36,35 +35,100 @@ html, body {
 /* ── HEADER BAR ── */
 #topbar {
   position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 24px; height: 52px;
-  background: rgba(15,23,42,0.92);
+  display: flex; align-items: center; gap: 0;
+  padding: 0 20px; height: 52px;
+  background: rgba(11,10,18,0.94);
   border-bottom: 1px solid var(--border);
   backdrop-filter: blur(12px);
 }
+.tb-brand { flex-shrink: 0; margin-right: 20px; }
 .tb-logo { font-size: 9px; letter-spacing: .28em; color: var(--dimmer); }
-.tb-tag { font-size: 8px; color: var(--dim); letter-spacing: .18em; }
-.tb-right { display: flex; align-items: center; gap: 12px; }
+.tb-tag { font-size: 8px; color: var(--dimmest); letter-spacing: .16em; }
+.tb-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; margin-left: 16px; }
 .btn-install {
   background: var(--teal); color: var(--bg);
   font-family: var(--font); font-size: 9px; font-weight: 700;
-  letter-spacing: .18em; padding: 8px 16px; border: none;
+  letter-spacing: .18em; padding: 8px 14px; border: none;
   border-radius: 3px; cursor: pointer;
   text-decoration: none; display: inline-block;
-  transition: opacity .15s;
+  transition: opacity .15s; white-space: nowrap;
 }
 .btn-install:hover { opacity: .85; }
 .tb-link {
   font-size: 9px; color: var(--dimmer); letter-spacing: .1em;
-  text-decoration: none; transition: color .15s;
+  text-decoration: none; transition: color .15s; white-space: nowrap;
 }
 .tb-link:hover { color: var(--dim); }
 
-/* ── GRAPH ── */
-#graph {
-  width: 100vw; height: 100vh; display: block;
-  margin-top: 0;
+/* ── SEARCH ── */
+#search-container {
+  flex: 1; max-width: 340px; position: relative; min-width: 0;
 }
+#search-wrap { position: relative; }
+#search-input {
+  width: 100%; background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border); border-radius: 3px;
+  color: var(--dim); font-family: var(--font); font-size: 9px;
+  letter-spacing: .08em; padding: 7px 32px 7px 12px;
+  outline: none; transition: border-color .15s;
+}
+#search-input:focus { border-color: var(--dimmer); }
+#search-input::placeholder { color: var(--dimmest); letter-spacing: .08em; }
+#search-spinner {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  width: 10px; height: 10px; border: 1px solid var(--dimmer);
+  border-top-color: transparent; border-radius: 50%;
+  animation: spin .7s linear infinite; display: none;
+}
+@keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
+#search-dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: var(--bg-raised); border: 1px solid var(--border);
+  border-radius: 4px; z-index: 350; max-height: 320px; overflow-y: auto;
+  display: none;
+}
+.sd-section-head {
+  font-size: 7px; letter-spacing: .2em; color: var(--dimmest);
+  padding: 8px 12px 4px; border-top: 1px solid var(--border);
+}
+.sd-section-head:first-child { border-top: none; }
+.sd-item {
+  padding: 9px 12px; cursor: pointer; font-size: 9px; color: var(--dim);
+  letter-spacing: .06em; display: flex; align-items: center; justify-content: space-between;
+  transition: background .1s;
+}
+.sd-item:hover { background: rgba(255,255,255,0.05); }
+.sd-item-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sd-item-meta { font-size: 8px; color: var(--dimmer); margin-left: 12px; flex-shrink: 0; }
+.sd-empty { padding: 12px; font-size: 9px; color: var(--dimmer); letter-spacing: .08em; }
+.sd-probe { padding: 10px 12px; cursor: pointer; font-size: 9px; color: var(--teal); letter-spacing: .1em; transition: background .1s; }
+.sd-probe:hover { background: rgba(255,255,255,0.04); }
+
+/* ── VIEW TOGGLE ── */
+#view-toggle {
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  color: var(--dimmer); font-family: var(--font); font-size: 8px;
+  letter-spacing: .16em; padding: 6px 10px; border-radius: 3px;
+  cursor: pointer; transition: border-color .15s, color .15s; white-space: nowrap;
+}
+#view-toggle:hover { border-color: var(--dimmer); color: var(--dim); }
+
+/* ── LIVE BADGE ── */
+#live-badge {
+  font-size: 8px; letter-spacing: .18em; color: var(--amber);
+  display: none; align-items: center; gap: 6px; white-space: nowrap;
+}
+.live-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--amber);
+  animation: live-pulse 1.5s ease-in-out infinite; flex-shrink: 0;
+}
+@keyframes live-pulse { 0%,100%{opacity:1;} 50%{opacity:.3;} }
+
+/* ── EXT PROMPT ── */
+#ext-prompt { display: none; }
+
+/* ── GRAPH ── */
+#graph { width: 100vw; height: 100vh; display: block; }
 #graph text { pointer-events: none; user-select: none; }
 
 /* ── LOADING ── */
@@ -74,23 +138,18 @@ html, body {
   background: var(--bg);
 }
 .load-title { font-size: 10px; letter-spacing: .22em; color: var(--dimmer); }
-.load-bar {
-  width: 200px; height: 1px; background: var(--dimmest); position: relative; overflow: hidden;
-}
+.load-bar { width: 200px; height: 1px; background: var(--dimmest); position: relative; overflow: hidden; }
 .load-fill {
   position: absolute; left: -100%; top: 0; height: 100%;
   width: 100%; background: var(--teal);
   animation: sweep 1.4s ease-in-out infinite;
 }
-@keyframes sweep {
-  0% { left: -100%; }
-  100% { left: 100%; }
-}
+@keyframes sweep { 0%{left:-100%;} 100%{left:100%;} }
 
 /* ── TOOLTIP ── */
 #tooltip {
   position: fixed; pointer-events: none; z-index: 300;
-  background: rgba(15,23,42,0.97); border: 1px solid var(--border);
+  background: rgba(11,10,18,0.97); border: 1px solid var(--border);
   border-radius: 4px; padding: 12px 16px; font-size: 10px;
   max-width: 240px; display: none;
 }
@@ -108,7 +167,7 @@ html, body {
   display: flex; flex-direction: column; gap: 4px;
 }
 .sp-row { display: flex; gap: 10px; align-items: baseline; }
-.sp-n { font-size: 16px; color: var(--text); letter-spacing: -.01em; min-width: 48px; }
+.sp-n { font-size: 16px; color: var(--text); letter-spacing: -.01em; min-width: 52px; }
 .sp-l { font-size: 8px; color: var(--dimmer); letter-spacing: .1em; }
 
 /* ── LEGEND ── */
@@ -124,22 +183,16 @@ html, body {
 #info-panel {
   position: fixed; top: 68px; left: 20px; z-index: 250;
   width: 320px; display: none;
-  background: rgba(15,23,42,0.97); border: 1px solid var(--border);
+  background: rgba(11,10,18,0.97); border: 1px solid var(--border);
   border-radius: 4px; padding: 18px 20px;
   font-size: 9px; color: var(--dim); letter-spacing: .08em; line-height: 1.8;
   backdrop-filter: blur(16px);
 }
-#info-panel-header {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 14px;
-}
-#info-panel-title {
-  font-size: 8px; letter-spacing: .22em; color: var(--dimmer);
-}
+#info-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+#info-panel-title { font-size: 8px; letter-spacing: .22em; color: var(--dimmer); }
 #info-panel-close {
   background: none; border: none; color: var(--dimmer); cursor: pointer;
-  font-family: var(--font); font-size: 11px; padding: 0; line-height: 1;
-  transition: color .15s;
+  font-family: var(--font); font-size: 11px; padding: 0; line-height: 1; transition: color .15s;
 }
 #info-panel-close:hover { color: var(--dim); }
 #info-panel p { margin-bottom: 14px; }
@@ -155,24 +208,130 @@ html, body {
   position: fixed; bottom: 20px; right: 130px; z-index: 200;
   font-family: var(--font); font-size: 9px; color: var(--dimmest);
   letter-spacing: .1em; cursor: pointer; background: none; border: none;
-  padding: 6px 8px; transition: color .15s; line-height: 1;
-  user-select: none;
+  padding: 6px 8px; transition: color .15s; line-height: 1; user-select: none;
 }
 #help-btn:hover { color: var(--dim); }
 
-/* ── INSTALL PROMPT (bottom-center) ── */
+/* ── INSTALL BAR ── */
 #install-bar {
   position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
   z-index: 150; padding: 14px 28px;
-  background: rgba(15,23,42,0.92); border-top: 1px solid var(--border);
+  background: rgba(11,10,18,0.92); border-top: 1px solid var(--border);
   border-left: 1px solid var(--border); border-right: 1px solid var(--border);
   border-radius: 6px 6px 0 0;
   font-size: 9px; color: var(--dimmer); letter-spacing: .1em;
   text-align: center; line-height: 1.8;
-  backdrop-filter: blur(12px);
-  display: none;
+  backdrop-filter: blur(12px); display: none;
 }
 #install-bar strong { color: var(--dim); }
+
+/* ── EXPLAINER OVERLAY ── */
+#explainer-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(11,10,18,0.92);
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(8px);
+}
+#explainer-box {
+  width: min(520px, 90vw);
+  background: var(--bg-raised); border: 1px solid var(--border);
+  border-radius: 6px; padding: 40px 44px;
+}
+.ex-eyebrow { font-size: 8px; letter-spacing: .28em; color: var(--dimmer); margin-bottom: 14px; }
+.ex-title { font-size: 20px; color: var(--text); letter-spacing: -.01em; margin-bottom: 20px; line-height: 1.1; }
+.ex-body { font-size: 10px; color: var(--dim); line-height: 1.8; margin-bottom: 20px; font-family: var(--ui); }
+.ex-body strong { color: var(--text); }
+.ex-legend-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 22px; }
+.ex-leg-item { display: flex; align-items: center; gap: 12px; font-size: 9px; color: var(--dimmer); font-family: var(--ui); }
+.ex-dot { border-radius: 50%; background: var(--c-surveillance); opacity: .7; flex-shrink: 0; }
+.ex-note { font-size: 9px; color: var(--dimmer); letter-spacing: .06em; margin-bottom: 28px; font-style: italic; }
+.ex-actions { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+.ex-btn-primary {
+  background: var(--red); color: #fff;
+  font-family: var(--font); font-size: 9px; font-weight: 700;
+  letter-spacing: .16em; padding: 10px 18px; border-radius: 3px; text-decoration: none;
+  transition: opacity .15s;
+}
+.ex-btn-primary:hover { opacity: .85; }
+.ex-btn-secondary {
+  background: transparent; color: var(--dim);
+  font-family: var(--font); font-size: 9px; letter-spacing: .14em;
+  padding: 10px 18px; border: 1px solid var(--border); border-radius: 3px; text-decoration: none;
+  transition: border-color .15s;
+}
+.ex-btn-secondary:hover { border-color: var(--dimmer); }
+#explainer-dismiss {
+  background: none; border: none; color: var(--dimmer); font-family: var(--font);
+  font-size: 9px; letter-spacing: .12em; cursor: pointer; padding: 0;
+  transition: color .15s;
+}
+#explainer-dismiss:hover { color: var(--text); }
+
+/* ── DETAIL PANEL ── */
+#detail-panel {
+  position: fixed; top: 52px; right: 0; bottom: 0; z-index: 400;
+  width: min(380px, 92vw);
+  background: rgba(11,10,18,0.98);
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
+  backdrop-filter: blur(16px);
+  overflow: hidden;
+}
+#detail-panel.open { transform: translateX(0); }
+#dp-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 20px 20px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+#dp-header-left { flex: 1; min-width: 0; }
+#dp-name { font-size: 15px; color: var(--text); line-height: 1.3; margin-bottom: 8px; }
+#dp-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+.dp-badge {
+  font-size: 7px; letter-spacing: .16em; padding: 3px 8px;
+  border-radius: 2px; font-weight: 700;
+}
+#dp-close {
+  background: none; border: none; color: var(--dimmer); cursor: pointer;
+  font-family: var(--font); font-size: 16px; padding: 0; line-height: 1;
+  flex-shrink: 0; margin-left: 12px; margin-top: 2px; transition: color .15s;
+}
+#dp-close:hover { color: var(--dim); }
+#dp-body { flex: 1; overflow-y: auto; padding: 20px; }
+.dp-section { margin-bottom: 20px; }
+.dp-section-label { font-size: 7px; letter-spacing: .2em; color: var(--dimmer); margin-bottom: 8px; }
+#dp-description { font-size: 10px; color: var(--dim); line-height: 1.7; font-family: var(--ui); }
+.dp-cats { display: flex; flex-wrap: wrap; gap: 6px; }
+.dp-cat-tag {
+  font-size: 8px; color: var(--dim); background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border); border-radius: 2px; padding: 3px 8px; letter-spacing: .08em;
+}
+.dp-cost-val { font-size: 22px; color: var(--red); letter-spacing: -.01em; }
+.dp-cost-val span { font-size: 10px; color: var(--dimmer); margin-left: 6px; }
+#dp-parent { font-size: 10px; color: var(--dim); }
+.dp-domain-list { display: flex; flex-direction: column; gap: 5px; }
+.dp-dom-row { display: flex; align-items: center; gap: 8px; font-size: 9px; }
+.dp-dom-name { color: var(--dim); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dp-dom-score-bar { width: 44px; height: 3px; background: rgba(255,255,255,0.08); border-radius: 1px; flex-shrink: 0; }
+.dp-dom-score-fill { height: 100%; border-radius: 1px; }
+.dp-dom-fp { font-size: 7px; color: var(--dimmer); letter-spacing: .06em; flex-shrink: 0; min-width: 24px; text-align: right; }
+.dp-dom-note { font-size: 8px; color: var(--dimmer); margin-top: 8px; letter-spacing: .06em; }
+.dp-actions { display: flex; flex-direction: column; gap: 8px; }
+.dp-action-link {
+  font-size: 9px; letter-spacing: .14em; color: var(--teal);
+  text-decoration: none; display: inline-block; padding: 2px 0; transition: opacity .15s;
+}
+.dp-action-link:hover { opacity: .75; }
+.dp-action-dim { color: var(--dimmer); }
+.dp-err { font-size: 9px; color: var(--dimmer); letter-spacing: .08em; }
+
+/* Skeleton */
+#dp-skeleton { display: flex; flex-direction: column; gap: 10px; }
+.sk-line { height: 10px; background: var(--bg-raised); border-radius: 2px; animation: sk-pulse 1.6s ease-in-out infinite; }
+.sk-gap { height: 16px; }
+.sk-w80 { width: 80%; } .sk-w60 { width: 60%; } .sk-w90 { width: 90%; }
+.sk-w40 { width: 40%; } .sk-w70 { width: 70%; } .sk-w55 { width: 55%; }
+@keyframes sk-pulse { 0%,100%{opacity:.4;} 50%{opacity:.8;} }
 </style>
 </head>
 <body>
@@ -183,13 +342,24 @@ html, body {
 </div>
 
 <div id="topbar">
-  <div>
+  <div class="tb-brand">
     <div class="tb-logo">TUNNELMIND</div>
     <div class="tb-tag">RADAR — SURVEILLANCE ECOSYSTEM MAP</div>
   </div>
+  <div id="search-container">
+    <div id="search-wrap">
+      <input type="text" id="search-input" placeholder="SEARCH ENTITIES OR DOMAINS…" autocomplete="off" spellcheck="false">
+      <div id="search-spinner"></div>
+    </div>
+    <div id="search-dropdown"></div>
+  </div>
   <div class="tb-right">
-    <a href="https://tunnelmind.ai/explore" class="tb-link" target="_blank">EXPLORER</a>
-    <a href="https://tunnelmind.ai" class="tb-link" target="_blank">HOME</a>
+    <div id="live-badge"><span class="live-dot"></span>LIVE MODE</div>
+    <div id="ext-prompt">
+      <a href="https://tunnelmind.ai" class="tb-link" target="_blank">INSTALL → SEE YOUR DATA</a>
+    </div>
+    <button id="view-toggle" onclick="toggleViewMode()"><span id="view-toggle-label">INDUSTRY</span></button>
+    <a href="https://tunnelmind.ai#/receipt" class="tb-link" target="_blank">RECEIPT</a>
     <a href="https://tunnelmind.ai" class="btn-install" target="_blank">INSTALL EXTENSION →</a>
   </div>
 </div>
@@ -203,7 +373,7 @@ html, body {
   <div class="tt-row"><span>JURISDICTION</span><span class="tt-val" id="tt-jur"></span></div>
   <div class="tt-cat" id="tt-cat"></div>
   <div class="tt-domains" id="tt-domain-list"></div>
-  <div class="tt-hint">Click to explore in detail →</div>
+  <div class="tt-hint">Click for full details →</div>
 </div>
 
 <div id="stats-panel">
@@ -225,7 +395,8 @@ html, body {
     <span id="info-panel-title">ABOUT THIS MAP</span>
     <button id="info-panel-close" onclick="toggleInfo(false)">×</button>
   </div>
-  <p>Each node is a surveillance entity — an advertising company, data broker, analytics provider, or CDN resolved from domain ownership data. Node size reflects domain count; color reflects primary industry. Entities in this graph were seen contacting real devices — the count shown is how many domains that entity operates. To see which of these contacted <em>your</em> device, run a Surveillance Receipt scan at tunnelmind.ai/receipt. For programmatic access to the full dataset, use the Tracker Data API at data.tunnelmind.ai.</p>
+  <p>Each node is a surveillance entity — an advertising company, data broker, analytics provider, or CDN resolved from domain ownership data. Node size reflects domain count; color reflects primary industry. Entities in this graph were seen contacting real devices.</p>
+  <p>Click any node for full details including domain list, data categories collected, and estimated annual value per user. To see which entities contacted <em>your</em> device, run a Surveillance Receipt scan.</p>
   <div class="ip-legend">
     <div class="ip-leg-row"><div class="ip-leg-dot" style="background:var(--c-surveillance)"></div><span>Fingerprinting / Data Broker</span></div>
     <div class="ip-leg-row"><div class="ip-leg-dot" style="background:var(--c-monetization)"></div><span>Ad Networks</span></div>
@@ -234,21 +405,105 @@ html, body {
     <div class="ip-leg-row"><div class="ip-leg-dot" style="background:var(--c-infrastructure)"></div><span>Infrastructure / CDN</span></div>
   </div>
   <div class="ip-links">
-    Cross-reference: <a href="https://tunnelmind.ai/receipt" target="_blank">tunnelmind.ai/receipt</a><br>
+    Scan your device: <a href="https://tunnelmind.ai#/receipt" target="_blank">tunnelmind.ai#/receipt</a><br>
     Data API: <a href="https://data.tunnelmind.ai" target="_blank">data.tunnelmind.ai</a>
   </div>
 </div>
 
 <button id="help-btn" onclick="toggleInfo()" title="About this map [?]">[?]</button>
 
-<div id="install-bar" id="install-prompt">
+<div id="install-bar">
   <strong>See which of these entities tracked YOU today.</strong><br>
   Install the TunnelMind extension — your personal surveillance map populates in real time.
   &nbsp;&nbsp;<a href="https://tunnelmind.ai" class="btn-install" target="_blank">INSTALL FREE →</a>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<!-- ── EXPLAINER OVERLAY ── -->
+<div id="explainer-overlay">
+  <div id="explainer-box">
+    <div class="ex-eyebrow">TUNNELMIND RADAR</div>
+    <h1 class="ex-title">THE SURVEILLANCE ECOSYSTEM</h1>
+    <p class="ex-body">
+      Every node is a company that tracks people across the web —
+      ad networks, data brokers, fingerprinters, analytics platforms.
+      <strong>704 entities. 9,786 tracker domains.</strong>
+      All observed contacting real devices.
+    </p>
+    <div class="ex-legend-row">
+      <div class="ex-leg-item">
+        <div class="ex-dot" style="width:24px;height:24px;"></div>
+        <span>Large nodes = more domains operated = wider tracking reach</span>
+      </div>
+      <div class="ex-leg-item">
+        <div class="ex-dot" style="width:10px;height:10px;"></div>
+        <span>Small nodes = narrower scope but still present everywhere</span>
+      </div>
+    </div>
+    <p class="ex-note">This is curated surveillance intelligence data — not your personal browsing history.</p>
+    <div class="ex-actions">
+      <a href="https://tunnelmind.ai#/receipt" class="ex-btn-primary" target="_blank">SEE WHO TRACKED YOU →</a>
+      <a href="https://tunnelmind.ai" class="ex-btn-secondary" target="_blank">INSTALL EXTENSION</a>
+    </div>
+    <button id="explainer-dismiss">explore the map →</button>
+  </div>
+</div>
+
+<!-- ── ENTITY DETAIL PANEL ── -->
+<div id="detail-panel">
+  <div id="dp-header">
+    <div id="dp-header-left">
+      <div id="dp-name"></div>
+      <div id="dp-badges"></div>
+    </div>
+    <button id="dp-close" onclick="closeDetailPanel()">×</button>
+  </div>
+  <div id="dp-body">
+    <div id="dp-skeleton">
+      <div class="sk-line sk-w80"></div>
+      <div class="sk-line sk-w60"></div>
+      <div class="sk-line sk-w90"></div>
+      <div class="sk-gap"></div>
+      <div class="sk-line sk-w40"></div>
+      <div class="sk-line sk-w70"></div>
+      <div class="sk-line sk-w55"></div>
+    </div>
+    <div id="dp-content" style="display:none">
+      <div class="dp-section" id="dp-desc-section">
+        <div class="dp-section-label">ABOUT</div>
+        <div id="dp-description"></div>
+      </div>
+      <div class="dp-section">
+        <div class="dp-section-label">DATA CATEGORIES</div>
+        <div id="dp-categories" class="dp-cats"></div>
+      </div>
+      <div class="dp-section">
+        <div class="dp-section-label">SURVEILLANCE COST</div>
+        <div id="dp-cost" class="dp-cost-val"></div>
+      </div>
+      <div class="dp-section" id="dp-parent-section" style="display:none">
+        <div class="dp-section-label">OWNED BY</div>
+        <div id="dp-parent"></div>
+      </div>
+      <div class="dp-section">
+        <div class="dp-section-label">DOMAINS (<span id="dp-dom-count">—</span>)</div>
+        <div id="dp-domain-table" class="dp-domain-list"></div>
+        <div id="dp-dom-note" class="dp-dom-note"></div>
+      </div>
+      <div class="dp-section dp-actions">
+        <a href="https://tunnelmind.ai#/receipt" class="dp-action-link" target="_blank">SCAN YOUR EXPOSURE →</a>
+        <a id="dp-website-link" href="#" class="dp-action-link dp-action-dim" target="_blank" style="display:none">VISIT WEBSITE ↗</a>
+      </div>
+    </div>
+    <div id="dp-error" style="display:none" class="dp-err"></div>
+  </div>
+</div>
+
+<script src="d3.min.js"></script>
 <script>
+// ── Constants ──────────────────────────────────────────────────────────────────
+
+var API = 'https://data.tunnelmind.ai';
+
 var CAT_COLOR = {
   surveillance:   '#ff3d3d',
   analytics:      '#ff9500',
@@ -265,12 +520,43 @@ var CAT_LABEL = {
   infrastructure: 'INFRASTRUCTURE',
 };
 
+var JUR_COLOR = {
+  US:      '#ff4444',
+  EU:      '#44bb44',
+  CN:      '#ffaa00',
+  RU:      '#cc44ff',
+  unknown: '#555566',
+};
+
+var JUR_LABEL = {
+  US:      'US (FISA 702)',
+  EU:      'EU (GDPR)',
+  CN:      'CN',
+  RU:      'RU',
+  unknown: 'Unknown Jurisdiction',
+};
+
+// ── Module state ──────────────────────────────────────────────────────────────
+
+var _nodeG        = null;
+var _zoom         = null;
+var _detailOpen   = false;
+var _activeNodeId = null;
+var _viewMode     = localStorage.getItem('tm_radar_view_mode') || 'industry';
+var _searchTimer  = null;
+var _lastQuery    = '';
+
+// ── Data load + init ──────────────────────────────────────────────────────────
+
 fetch('radar-graph.json')
   .then(function(r) { return r.json(); })
   .then(function(data) {
     document.getElementById('loading').style.display = 'none';
-    document.getElementById('install-bar').style.display = 'block';
-    render(data.nodes);
+    render(data.nodes, data.links || []);
+    initViewMode();
+    initExplainer();
+    initSearch();
+    initExtensionBridge();
   })
   .catch(function(err) {
     document.getElementById('loading').innerHTML =
@@ -278,22 +564,27 @@ fetch('radar-graph.json')
     console.error(err);
   });
 
-function render(nodes) {
+// ── Render ────────────────────────────────────────────────────────────────────
+
+function render(nodes, links) {
   var w = window.innerWidth;
   var h = window.innerHeight;
 
-  var svg = d3.select('#graph')
-    .attr('width', w).attr('height', h);
-
+  var svg = d3.select('#graph').attr('width', w).attr('height', h);
   var zoomG = svg.append('g');
 
-  svg.call(d3.zoom()
+  _zoom = d3.zoom()
     .scaleExtent([0.15, 5])
-    .on('zoom', function(event) {
-      zoomG.attr('transform', event.transform);
-    }));
+    .on('zoom', function(event) { zoomG.attr('transform', event.transform); });
 
-  // Assign initial positions by category angle
+  svg.call(_zoom);
+
+  // Click on SVG background closes detail panel
+  svg.on('click', function(e) {
+    if (e.target === this && _detailOpen) closeDetailPanel();
+  });
+
+  // Initial positions by category angle
   var catAngles = {
     surveillance: 0,
     monetization: Math.PI * 0.6,
@@ -310,20 +601,24 @@ function render(nodes) {
   });
 
   var sim = d3.forceSimulation(nodes)
-    .force('charge', d3.forceManyBody().strength(function(d) {
-      return -nodeR(d) * 12;
-    }))
-    .force('center', d3.forceCenter(w / 2, h / 2).strength(0.04))
-    .force('collide', d3.forceCollide().radius(function(d) {
-      return nodeR(d) + 4;
-    }).strength(0.9))
-    .force('radial', d3.forceRadial(function(d) {
+    .force('charge', d3.forceManyBody().strength(function(d) { return -nodeR(d) * 12; }))
+    .force('center',  d3.forceCenter(w / 2, h / 2).strength(0.04))
+    .force('collide', d3.forceCollide().radius(function(d) { return nodeR(d) + 4; }).strength(0.9))
+    .force('radial',  d3.forceRadial(function(d) {
       return catR(d.category, arenaR);
     }, w / 2, h / 2).strength(0.18))
+    .force('link', d3.forceLink(links).id(function(d) { return d.id; }).distance(80).strength(0.25))
     .alphaDecay(0.015)
     .velocityDecay(0.42);
 
-  var nodeG = zoomG.selectAll('.node')
+  // Ownership links (drawn behind nodes)
+  var linkLines = zoomG.insert('g', ':first-child')
+    .selectAll('line').data(links).enter().append('line')
+    .attr('stroke', 'rgba(255,255,255,0.07)')
+    .attr('stroke-width', 0.8)
+    .attr('stroke-dasharray', '3 4');
+
+  _nodeG = zoomG.selectAll('.node')
     .data(nodes, function(d) { return d.id; })
     .enter().append('g')
     .attr('class', 'node')
@@ -342,10 +637,11 @@ function render(nodes) {
     .on('mousemove', moveTT)
     .on('mouseout', hideTT)
     .on('click', function(e, d) {
-      window.open('https://tunnelmind.ai/explore?q=' + encodeURIComponent(d.label), '_blank');
+      e.stopPropagation();
+      openDetailPanel(d);
     });
 
-  nodeG.append('circle')
+  _nodeG.append('circle')
     .attr('r', nodeR)
     .attr('fill', function(d) { return CAT_COLOR[d.category] || '#3a3a52'; })
     .attr('fill-opacity', 0.65)
@@ -353,24 +649,26 @@ function render(nodes) {
     .attr('stroke-opacity', 0.35)
     .attr('stroke-width', 1);
 
-  nodeG.filter(function(d) { return nodeR(d) >= 12; })
+  _nodeG.filter(function(d) { return nodeR(d) >= 12; })
     .append('text')
     .attr('text-anchor', 'middle')
     .attr('dy', '0.35em')
     .attr('fill', '#ffffff')
     .attr('fill-opacity', 0.65)
-    .attr('font-family', "'Geist Mono','Fira Code',ui-monospace,monospace")
-    .attr('font-size', function(d) {
-      return Math.max(6, Math.min(10, nodeR(d) * 0.5)) + 'px';
-    })
+    .attr('font-family', "'JetBrains Mono','Fira Code',monospace")
+    .attr('font-size', function(d) { return Math.max(6, Math.min(10, nodeR(d) * 0.5)) + 'px'; })
     .text(function(d) {
       var maxLen = Math.floor(nodeR(d) / 3.8);
       return d.label.length > maxLen ? d.label.slice(0, maxLen) + '…' : d.label;
     });
 
   sim.on('tick', function() {
-    zoomG.selectAll('.node')
-      .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
+    linkLines
+      .attr('x1', function(d) { return d.source.x; })
+      .attr('y1', function(d) { return d.source.y; })
+      .attr('x2', function(d) { return d.target.x; })
+      .attr('y2', function(d) { return d.target.y; });
+    _nodeG.attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
   });
 
   svg.style('opacity', 0).transition().duration(800).style('opacity', 1);
@@ -398,19 +696,598 @@ function catR(cat, arenaR) {
   return m[cat] || arenaR * 0.7;
 }
 
-// ── INFO PANEL TOGGLE ──
+// ── EXPLAINER OVERLAY ─────────────────────────────────────────────────────────
+
+var LS_EXPLAINER = 'tm_radar_dismissed_explainer';
+
+function initExplainer() {
+  if (localStorage.getItem(LS_EXPLAINER)) {
+    document.getElementById('explainer-overlay').style.display = 'none';
+    return;
+  }
+  document.getElementById('explainer-dismiss').addEventListener('click', dismissExplainer);
+}
+
+function dismissExplainer() {
+  localStorage.setItem(LS_EXPLAINER, '1');
+  var el = document.getElementById('explainer-overlay');
+  el.style.transition = 'opacity .4s';
+  el.style.opacity = '0';
+  setTimeout(function() { el.style.display = 'none'; }, 400);
+}
+
+// ── DETAIL PANEL ──────────────────────────────────────────────────────────────
+
+function openDetailPanel(d) {
+  _activeNodeId = d.id;
+  _detailOpen = true;
+
+  // Highlight node
+  setNodeHighlight(d.id, true);
+
+  // Show panel header immediately
+  document.getElementById('dp-name').textContent = d.label;
+  renderBadges(d);
+
+  // Show skeleton, hide content/error
+  document.getElementById('dp-skeleton').style.display = 'flex';
+  document.getElementById('dp-content').style.display = 'none';
+  document.getElementById('dp-error').style.display = 'none';
+
+  document.getElementById('detail-panel').classList.add('open');
+
+  fetchEntityDetail(d.id, d);
+}
+
+function closeDetailPanel() {
+  document.getElementById('detail-panel').classList.remove('open');
+  _detailOpen = false;
+  if (_activeNodeId) {
+    setNodeHighlight(_activeNodeId, false);
+    _activeNodeId = null;
+  }
+}
+
+function setNodeHighlight(id, active) {
+  if (!_nodeG) return;
+  _nodeG.filter(function(d) { return d.id === id; }).select('circle')
+    .attr('stroke', active ? '#fbbf24' : function(d) {
+      return _viewMode === 'jurisdiction'
+        ? (JUR_COLOR[d.jurisdiction] || JUR_COLOR.unknown)
+        : (CAT_COLOR[d.category] || '#3a3a52');
+    })
+    .attr('stroke-width', active ? 2.5 : 1)
+    .attr('stroke-opacity', active ? 1 : 0.35);
+}
+
+function renderBadges(d) {
+  var container = document.getElementById('dp-badges');
+  container.innerHTML = '';
+  var catBadge = document.createElement('span');
+  catBadge.className = 'dp-badge';
+  catBadge.textContent = CAT_LABEL[d.category] || d.category;
+  var c = CAT_COLOR[d.category] || '#888';
+  catBadge.style.background = c + '22';
+  catBadge.style.color = c;
+  container.appendChild(catBadge);
+  if (d.jurisdiction && d.jurisdiction !== 'unknown') {
+    var jurBadge = document.createElement('span');
+    jurBadge.className = 'dp-badge';
+    jurBadge.style.background = 'rgba(255,255,255,0.06)';
+    jurBadge.style.color = 'var(--dimmer)';
+    jurBadge.textContent = d.jurisdiction;
+    container.appendChild(jurBadge);
+  }
+}
+
+function fetchEntityDetail(slug, localData) {
+  fetch(API + '/v1/entities/' + encodeURIComponent(slug))
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(json) {
+      if (!json.ok) throw new Error(json.error || 'API error');
+      renderDetailContent(json.data, localData);
+    })
+    .catch(function() {
+      renderDetailFallback(localData);
+    });
+}
+
+function renderDetailContent(apiData, localData) {
+  document.getElementById('dp-skeleton').style.display = 'none';
+  document.getElementById('dp-content').style.display = 'block';
+
+  var descSection = document.getElementById('dp-desc-section');
+  var descEl = document.getElementById('dp-description');
+  if (apiData.description) {
+    descEl.textContent = apiData.description;
+    descSection.style.display = 'block';
+  } else {
+    descSection.style.display = 'none';
+  }
+
+  var cats = apiData.data_categories || [];
+  var catsEl = document.getElementById('dp-categories');
+  catsEl.innerHTML = '';
+  if (cats.length) {
+    cats.forEach(function(cat) {
+      var tag = document.createElement('span');
+      tag.className = 'dp-cat-tag';
+      tag.textContent = String(cat).replace(/_/g, ' ');
+      catsEl.appendChild(tag);
+    });
+  } else {
+    catsEl.innerHTML = '<span style="color:var(--dimmest);font-size:9px">—</span>';
+  }
+
+  var cost = apiData.data_cost_usd || (localData.avgCpm ? localData.avgCpm * 52 / 1000 : 0);
+  document.getElementById('dp-cost').innerHTML =
+    '$' + cost.toFixed(2) + '<span>estimated annual value per user</span>';
+
+  var parentSec = document.getElementById('dp-parent-section');
+  if (apiData.parent_company) {
+    document.getElementById('dp-parent').textContent = apiData.parent_company;
+    parentSec.style.display = 'block';
+  } else {
+    parentSec.style.display = 'none';
+  }
+
+  var domains = apiData.domains || [];
+  document.getElementById('dp-dom-count').textContent = localData.domainCount || '—';
+  renderDomainTable(domains);
+
+  var noteEl = document.getElementById('dp-dom-note');
+  if (domains.length > 0 && localData.domainCount && domains.length < localData.domainCount) {
+    noteEl.textContent = 'Showing ' + domains.length + ' of ' + localData.domainCount + ' domains (free tier preview)';
+  } else {
+    noteEl.textContent = '';
+  }
+
+  var wsLink = document.getElementById('dp-website-link');
+  if (apiData.website) {
+    wsLink.href = /^https?:\/\//.test(apiData.website) ? apiData.website : 'https://' + apiData.website;
+    wsLink.style.display = 'inline-block';
+  } else {
+    wsLink.style.display = 'none';
+  }
+}
+
+function renderDetailFallback(localData) {
+  document.getElementById('dp-skeleton').style.display = 'none';
+  document.getElementById('dp-content').style.display = 'block';
+  document.getElementById('dp-desc-section').style.display = 'none';
+  document.getElementById('dp-categories').innerHTML = '<span style="color:var(--dimmest);font-size:9px">—</span>';
+  var cost = localData.avgCpm ? (localData.avgCpm * 52 / 1000).toFixed(2) : '—';
+  document.getElementById('dp-cost').innerHTML =
+    (cost !== '—' ? '$' + cost : '—') + '<span>est. annual per user</span>';
+  document.getElementById('dp-parent-section').style.display = 'none';
+  document.getElementById('dp-dom-count').textContent = localData.domainCount || '—';
+  var fallback = (localData.topDomains || []).map(function(d) { return { domain: d }; });
+  renderDomainTable(fallback);
+  document.getElementById('dp-dom-note').textContent =
+    fallback.length ? 'Showing local data' : '';
+  document.getElementById('dp-website-link').style.display = 'none';
+}
+
+function renderDomainTable(domains) {
+  var el = document.getElementById('dp-domain-table');
+  el.innerHTML = '';
+  if (!domains.length) {
+    el.innerHTML = '<div style="color:var(--dimmest);font-size:9px">No domain data available</div>';
+    return;
+  }
+  domains.forEach(function(d) {
+    var row = document.createElement('div');
+    row.className = 'dp-dom-row';
+
+    var name = document.createElement('div');
+    name.className = 'dp-dom-name';
+    name.textContent = d.domain;
+    name.title = d.domain;
+    row.appendChild(name);
+
+    if (d.score !== null && d.score !== undefined) {
+      var bar = document.createElement('div');
+      bar.className = 'dp-dom-score-bar';
+      var fill = document.createElement('div');
+      fill.className = 'dp-dom-score-fill';
+      fill.style.width = Math.min(100, d.score) + '%';
+      fill.style.background = d.score >= 70 ? '#ff3d3d' : d.score >= 40 ? '#ff9500' : '#4ade80';
+      bar.appendChild(fill);
+      row.appendChild(bar);
+
+      var fp = document.createElement('div');
+      fp.className = 'dp-dom-fp';
+      var fpLevel = d.fingerprinting || 0;
+      if (fpLevel > 0) {
+        fp.textContent = 'FP' + fpLevel;
+        fp.style.color = fpLevel >= 2 ? '#ff3d3d' : '#ff9500';
+      }
+      row.appendChild(fp);
+    }
+
+    el.appendChild(row);
+  });
+}
+
+// ── SEARCH ───────────────────────────────────────────────────────────────────
+
+function initSearch() {
+  var input    = document.getElementById('search-input');
+  var dropdown = document.getElementById('search-dropdown');
+
+  input.addEventListener('input', function() {
+    var q = input.value.trim();
+    clearTimeout(_searchTimer);
+    dropdown.style.display = 'none';
+    if (q.length < 2) { _lastQuery = ''; return; }
+    if (q === _lastQuery) return;
+    _searchTimer = setTimeout(function() { runSearch(q); }, 280);
+  });
+
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { input.value = ''; dropdown.style.display = 'none'; }
+  });
+
+  document.addEventListener('mousedown', function(e) {
+    if (!document.getElementById('search-container').contains(e.target)) {
+      dropdown.style.display = 'none';
+    }
+  });
+}
+
+function runSearch(q) {
+  _lastQuery = q;
+  document.getElementById('search-spinner').style.display = 'block';
+
+  fetch(API + '/v1/search?q=' + encodeURIComponent(q))
+    .then(function(r) { return r.json(); })
+    .then(function(json) {
+      document.getElementById('search-spinner').style.display = 'none';
+      if (!json.ok) { showSearchEmpty(q); return; }
+      renderSearchResults(json.data, q);
+    })
+    .catch(function() {
+      document.getElementById('search-spinner').style.display = 'none';
+      showSearchEmpty(q);
+    });
+}
+
+function renderSearchResults(data, q) {
+  var dropdown = document.getElementById('search-dropdown');
+  dropdown.innerHTML = '';
+
+  var entities = data.entities || [];
+  var domains  = data.domains  || [];
+
+  if (!entities.length && !domains.length) { showSearchEmpty(q); return; }
+
+  if (entities.length) {
+    var eh = document.createElement('div');
+    eh.className = 'sd-section-head';
+    eh.textContent = 'ENTITIES';
+    dropdown.appendChild(eh);
+
+    entities.slice(0, 8).forEach(function(e) {
+      var item = document.createElement('div');
+      item.className = 'sd-item';
+      var name = document.createElement('span');
+      name.className = 'sd-item-name';
+      name.textContent = e.name;
+      var meta = document.createElement('span');
+      meta.className = 'sd-item-meta';
+      meta.textContent = e.industry || '';
+      item.appendChild(name);
+      item.appendChild(meta);
+      item.addEventListener('click', function() {
+        dropdown.style.display = 'none';
+        document.getElementById('search-input').value = '';
+        selectNodeBySlug(e.slug, e);
+      });
+      dropdown.appendChild(item);
+    });
+  }
+
+  if (domains.length) {
+    var dh = document.createElement('div');
+    dh.className = 'sd-section-head';
+    dh.textContent = 'DOMAINS';
+    dropdown.appendChild(dh);
+
+    domains.slice(0, 6).forEach(function(d) {
+      var item = document.createElement('div');
+      item.className = 'sd-item';
+      var name = document.createElement('span');
+      name.className = 'sd-item-name';
+      name.textContent = d.domain;
+      var meta = document.createElement('span');
+      meta.className = 'sd-item-meta';
+      meta.textContent = (d.entity && d.entity.name) ? d.entity.name : '';
+      item.appendChild(name);
+      item.appendChild(meta);
+      item.addEventListener('click', function() {
+        dropdown.style.display = 'none';
+        document.getElementById('search-input').value = '';
+        if (d.entity && d.entity.slug) {
+          selectNodeBySlug(d.entity.slug, d.entity);
+        }
+      });
+      dropdown.appendChild(item);
+    });
+  }
+
+  dropdown.style.display = 'block';
+}
+
+function showSearchEmpty(q) {
+  var dropdown = document.getElementById('search-dropdown');
+  dropdown.innerHTML = '';
+  var empty = document.createElement('div');
+  empty.className = 'sd-empty';
+  empty.textContent = 'No results for "' + q + '"';
+  dropdown.appendChild(empty);
+
+  if (/^[a-z0-9\-\.]+\.[a-z]{2,}$/i.test(q)) {
+    var probe = document.createElement('div');
+    probe.className = 'sd-probe';
+    probe.textContent = 'RUN LIVE PROBE: ' + q + ' →';
+    probe.addEventListener('click', function() {
+      dropdown.style.display = 'none';
+      document.getElementById('search-input').value = '';
+      runLiveProbe(q);
+    });
+    dropdown.appendChild(probe);
+  }
+
+  dropdown.style.display = 'block';
+}
+
+function runLiveProbe(domain) {
+  var synthetic = {
+    id: domain, label: domain, category: 'infrastructure',
+    jurisdiction: 'unknown', domainCount: 1, topDomains: [domain],
+    avgCpm: 0, totalCpm: 0,
+  };
+  openDetailPanel(synthetic);
+
+  fetch(API + '/v1/domains/' + encodeURIComponent(domain))
+    .then(function(r) { return r.json(); })
+    .then(function(json) {
+      if (!json.ok || !json.data) return;
+      var d = json.data;
+      if (d.entity && d.entity.slug) {
+        // Find entity node in graph, or open synthetic
+        var entitySynth = {
+          id: d.entity.slug, label: d.entity.name || d.entity.slug,
+          category: d.entity.category || 'infrastructure',
+          jurisdiction: 'unknown', domainCount: 1, topDomains: [domain],
+          avgCpm: 0, totalCpm: 0,
+        };
+        openDetailPanel(entitySynth);
+      }
+    })
+    .catch(function() {});
+}
+
+function selectNodeBySlug(slug, apiEntity) {
+  var found = null;
+  if (_nodeG) {
+    _nodeG.each(function(d) { if (d.id === slug) found = d; });
+  }
+  if (found) {
+    openDetailPanel(found);
+    centerOnNode(found);
+  } else {
+    var synthetic = {
+      id: slug, label: (apiEntity && apiEntity.name) ? apiEntity.name : slug,
+      category: (apiEntity && apiEntity.industry) ? apiEntity.industry : 'monetization',
+      jurisdiction: 'unknown', domainCount: 0, topDomains: [],
+      avgCpm: 0, totalCpm: 0,
+    };
+    openDetailPanel(synthetic);
+  }
+}
+
+function centerOnNode(d) {
+  if (!_zoom) return;
+  var svg = d3.select('#graph');
+  var w = window.innerWidth;
+  var h = window.innerHeight;
+  var panelW = Math.min(380, window.innerWidth * 0.92);
+  var tx = (w - panelW) / 2 - d.x;
+  var ty = h / 2 - d.y;
+  svg.transition().duration(600)
+    .call(_zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(1));
+}
+
+// ── VIEW MODE ─────────────────────────────────────────────────────────────────
+
+function initViewMode() {
+  document.getElementById('view-toggle-label').textContent = _viewMode.toUpperCase();
+  if (_viewMode === 'jurisdiction') {
+    // Applied after nodes exist — wait one tick
+    setTimeout(function() { applyJurisdictionColors(false); updateLegend(); }, 50);
+  }
+}
+
+function toggleViewMode() {
+  _viewMode = _viewMode === 'industry' ? 'jurisdiction' : 'industry';
+  localStorage.setItem('tm_radar_view_mode', _viewMode);
+  document.getElementById('view-toggle-label').textContent = _viewMode.toUpperCase();
+  if (_viewMode === 'jurisdiction') {
+    applyJurisdictionColors(true);
+  } else {
+    applyIndustryColors(true);
+  }
+  updateLegend();
+}
+
+function applyJurisdictionColors(animate) {
+  if (!_nodeG) return;
+  var sel = _nodeG.select('circle');
+  if (animate) sel = sel.transition().duration(500);
+  sel
+    .attr('fill', function(d) { return JUR_COLOR[d.jurisdiction] || JUR_COLOR.unknown; })
+    .attr('stroke', function(d) {
+      return d.id === _activeNodeId ? '#fbbf24' : (JUR_COLOR[d.jurisdiction] || JUR_COLOR.unknown);
+    })
+    .attr('stroke-opacity', 0.45);
+}
+
+function applyIndustryColors(animate) {
+  if (!_nodeG) return;
+  var sel = _nodeG.select('circle');
+  if (animate) sel = sel.transition().duration(500);
+  sel
+    .attr('fill', function(d) { return CAT_COLOR[d.category] || '#3a3a52'; })
+    .attr('stroke', function(d) {
+      return d.id === _activeNodeId ? '#fbbf24' : (CAT_COLOR[d.category] || '#3a3a52');
+    })
+    .attr('stroke-opacity', function(d) { return d.id === _activeNodeId ? 1 : 0.35; });
+}
+
+function updateLegend() {
+  var legend = document.getElementById('legend');
+  legend.innerHTML = '';
+
+  var entries = _viewMode === 'jurisdiction'
+    ? Object.keys(JUR_LABEL).map(function(k) { return { color: JUR_COLOR[k], label: JUR_LABEL[k] }; })
+    : [
+        { color: CAT_COLOR.surveillance,   label: 'FINGERPRINTING / DATA BROKER' },
+        { color: CAT_COLOR.monetization,   label: 'AD NETWORKS' },
+        { color: CAT_COLOR.analytics,      label: 'ANALYTICS' },
+        { color: CAT_COLOR.social,         label: 'SOCIAL' },
+        { color: CAT_COLOR.infrastructure, label: 'INFRASTRUCTURE' },
+      ];
+
+  entries.forEach(function(e) {
+    var row = document.createElement('div');
+    row.className = 'leg-row';
+    var label = document.createElement('span');
+    label.textContent = e.label;
+    var dot = document.createElement('div');
+    dot.className = 'leg-dot';
+    dot.style.background = e.color;
+    row.appendChild(label);
+    row.appendChild(dot);
+    legend.appendChild(row);
+  });
+}
+
+// ── EXTENSION BRIDGE ──────────────────────────────────────────────────────────
+
+function initExtensionBridge() {
+  var responded = false;
+
+  window.addEventListener('message', function(event) {
+    if (event.source !== window) return;
+    if (!event.data || event.data.type !== 'TM_DOMAINS_RESULT') return;
+    responded = true;
+
+    var domains = event.data.domains;
+    if (!domains || !Object.keys(domains).length) {
+      showExtensionPrompt();
+      return;
+    }
+    document.getElementById('live-badge').style.display = 'flex';
+    document.getElementById('ext-prompt').style.display = 'none';
+    document.getElementById('install-bar').style.display = 'none';
+    applyLiveHighlights(domains);
+  });
+
+  window.postMessage({ type: 'TM_GET_DOMAINS' }, window.location.origin);
+
+  setTimeout(function() {
+    if (!responded) showExtensionPrompt();
+  }, 1000);
+}
+
+function showExtensionPrompt() {
+  document.getElementById('ext-prompt').style.display = 'block';
+  document.getElementById('install-bar').style.display = 'block';
+}
+
+function applyLiveHighlights(domainCounts) {
+  if (!_nodeG) return;
+
+  var activeDomains = new Set(
+    Object.keys(domainCounts).map(function(d) {
+      return d.toLowerCase().replace(/^www\./, '');
+    })
+  );
+
+  var matchedIds = new Set();
+  _nodeG.each(function(d) {
+    var tops = d.topDomains || [];
+    var hit = tops.some(function(td) {
+      return activeDomains.has(td.toLowerCase().replace(/^www\./, ''));
+    });
+    if (hit) matchedIds.add(d.id);
+  });
+
+  // Add pulsing gold ring to matched nodes
+  _nodeG.filter(function(d) { return matchedIds.has(d.id); })
+    .append('circle')
+    .attr('class', 'live-ring')
+    .attr('r', function(d) { return nodeR(d) + 5; })
+    .attr('fill', 'none')
+    .attr('stroke', '#fbbf24')
+    .attr('stroke-width', 1.5)
+    .attr('stroke-opacity', 0)
+    .transition()
+    .duration(800)
+    .attr('stroke-opacity', 0.7);
+
+  // Pulse animation via repeated transitions
+  (function pulseRings() {
+    d3.selectAll('.live-ring')
+      .transition().duration(1200).attr('stroke-opacity', 0.2)
+      .transition().duration(1200).attr('stroke-opacity', 0.7)
+      .on('end', pulseRings);
+  })();
+
+  // Update stats panel
+  if (matchedIds.size > 0) {
+    var sp = document.getElementById('stats-panel');
+    var banner = document.createElement('div');
+    banner.className = 'sp-row';
+    var num = document.createElement('span');
+    num.className = 'sp-n';
+    num.style.color = '#fbbf24';
+    num.textContent = matchedIds.size;
+    var lbl = document.createElement('span');
+    lbl.className = 'sp-l';
+    lbl.style.color = '#fbbf24';
+    lbl.textContent = 'ENTITIES ACTIVE ON YOUR DEVICE';
+    banner.appendChild(num);
+    banner.appendChild(lbl);
+    sp.insertBefore(banner, sp.firstChild);
+  }
+}
+
+// ── INFO PANEL ────────────────────────────────────────────────────────────────
+
 var _infoVisible = false;
 function toggleInfo(forceState) {
   _infoVisible = forceState !== undefined ? forceState : !_infoVisible;
   document.getElementById('info-panel').style.display = _infoVisible ? 'block' : 'none';
 }
+
 document.addEventListener('keydown', function(e) {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
   if (e.key === '?') { toggleInfo(); }
-  if (e.key === 'Escape') { toggleInfo(false); }
+  if (e.key === 'Escape') {
+    toggleInfo(false);
+    if (_detailOpen) closeDetailPanel();
+  }
 });
 
+// ── TOOLTIP ───────────────────────────────────────────────────────────────────
+
 var tt = document.getElementById('tooltip');
+
 function showTT(e, d) {
   document.getElementById('tt-name').textContent = d.label;
   document.getElementById('tt-doms').textContent = d.domainCount;
